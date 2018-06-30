@@ -1,8 +1,5 @@
-
-
 function getData(sample, callback) {
 
-    
     Plotly.d3.json(`/samples/${sample}`, function(error, sample_value_data) {
         if (error) return console.warn(error);
         console.log(sample_value_data);
@@ -11,18 +8,11 @@ function getData(sample, callback) {
             if (error) return console.warn(error);
             console.log(otu_data);
   
-          Plotly.d3.json(`/wfreq/${sample}`, function(error, wfreq_data) {
-                if (error) return console.warn(error);
-                console.log(wfreq_data);
-                callback(sample_value_data, otu_data, wfreq_data);
           });
             
         });
-    
-        update_charts(sample, sample_value_data, otu_data, wfreq_data);
+        update_charts(sample, sample_value_data, otu_data);
     });
-  
-  
     Plotly.d3.json(`/metadata/${sample}`, function(error, meta_data) {
         if (error) return console.warn(error);
         console.log(meta_data);
@@ -30,8 +20,6 @@ function getData(sample, callback) {
     });
      
   };
-  
-  
   function update_metaData(meta_data) {
       
       var Panel = document.getElementById("sample-metadata");
@@ -43,11 +31,10 @@ function getData(sample, callback) {
           h6Text = document.createTextNode(`${key}: ${meta_data[key]}`);
           h6tag.append(h6Text);
           Panel.appendChild(h6tag);
-          
       }
   };
   
-  function build_charts( sample_value_data, otu_data, wfreq_data) {
+  function build_charts( sample_value_data, otu_data) {
       
   
       var OTU_Description = sample_value_data[0]['otu_ids'].map(function(item) {
@@ -102,43 +89,8 @@ function getData(sample, callback) {
       var radians = degrees * Math.PI / 180;
       var x = radius * Math.cos(radians);
       var y = radius * Math.sin(radians);
-
-      var mainPath = 'M -.0 -0.025 L .0 0.025 L ',
-          pathX = String(x),
-          space = ' ',
-          pathY = String(y),
-          pathEnd = ' Z';
-      var path = mainPath.concat(pathX,space,pathY,pathEnd);
-  
-      var gauge_data = [{ type: 'scatter',
-          x: [0], y:[0],
-            marker: {size: 20, color:'850000'},
-            showlegend: false,
-            name: 'Freq',
-            text: level,
-            hoverinfo: 'text+name'},
-        { values: [50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50/9, 50],
-        rotation: 90,
-        text: ['8-9', '7-8', '6-7', '5-6', '4-5', '3-4', '2-3', '1-2', '0-1', ''],
-        textinfo: 'text',
-        textposition:'inside',
-        marker: {colors:['rgba(0, 105, 11, .5)','rgba(10, 120, 22, .5)',
-                          'rgba(14, 127, 0, .5)', 'rgba(110, 154, 22, .5)',
-                           'rgba(170, 202, 42, .5)', 'rgba(202, 209, 95, .5)',
-                           'rgba(210, 206, 145, .5)', 'rgba(232, 226, 202, .5)',
-                           'rgba(240, 230, 215, .5)','rgba(255, 255, 255, 0)']},
-      
-        labels: ['8-9', '7-8', '6-7', '5-6', '4-5', '3-4', '2-3', '1-2', '0-1', ''],
-        hoverinfo: 'label',
-        hole: .5,
-        type: 'pie',
-        showlegend: false
-      }];
-  
-  
-  };  
-  
-  function update_charts(sample, sample_value_data, otu_data, wfreq_data) {
+    };  
+  function update_charts(sample, sample_value_data, otu_data) {
   
       optionChanged(sample) ;  
 
@@ -161,9 +113,7 @@ function getData(sample, callback) {
       Plotly.restyle(Bubble, 'text', [new_OTU_Description]);
       Plotly.restyle(Bubble, 'marker.size', [new_sample_values]);
       Plotly.restyle(Bubble, 'marker.color', [new_otu_ids]);
-        
-
-  }
+        }
   
   function getNames_dropdown_options() {
   
