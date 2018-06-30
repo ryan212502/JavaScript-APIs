@@ -98,7 +98,6 @@ def samples(sample):
             
     df_data = pd.read_csv("DataSets/belly_button_biodiversity_samples.csv")
     sampleId_result=Samples.__table__.columns.keys()
-    sampleId=sampleId_result.pop(0)
     
     sample_value_list=[]
     for sample_id in sampleId_result:
