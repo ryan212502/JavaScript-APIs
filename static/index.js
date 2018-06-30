@@ -1,5 +1,6 @@
 function getData(sample, callback) {
 
+    
     Plotly.d3.json(`/samples/${sample}`, function(error, sample_value_data) {
         if (error) return console.warn(error);
         console.log(sample_value_data);
@@ -8,18 +9,21 @@ function getData(sample, callback) {
             if (error) return console.warn(error);
             console.log(otu_data);
   
+          Plotly.d3.json(`/wfreq/${sample}`, function(error, wfreq_data) {
+                if (error) return console.warn(error);
+                console.log(wfreq_data);
+                callback(sample_value_data, otu_data, wfreq_data);
           });
-            
         });
-        update_charts(sample, sample_value_data, otu_data);
+        update_charts(sample, sample_value_data, otu_data, wfreq_data);
     });
     Plotly.d3.json(`/metadata/${sample}`, function(error, meta_data) {
         if (error) return console.warn(error);
         console.log(meta_data);
         update_metaData(meta_data);
     });
-     
-  };
+    };
+  
   function update_metaData(meta_data) {
       
       var Panel = document.getElementById("sample-metadata");
@@ -35,12 +39,11 @@ function getData(sample, callback) {
   };
   
   function build_charts( sample_value_data, otu_data) {
-      
-  
+
       var OTU_Description = sample_value_data[0]['otu_ids'].map(function(item) {
           return otu_data[item]
       });
-
+  
       console.log(sample_value_data[0]['sample_values'].slice(0, 10));
       console.log(sample_value_data[0]['otu_ids'].slice(0, 10));
       
@@ -60,7 +63,7 @@ function getData(sample, callback) {
       };
       var Pie = document.getElementById('pie-chart');
       Plotly.plot(Pie, pie_data, pie_layout);
-  
+
       var bubble_data = [{
           x: sample_value_data[0]['otu_ids'],
           y: sample_value_data[0]['sample_values'],
@@ -77,22 +80,18 @@ function getData(sample, callback) {
           hovermode: 'closest',
           height: 800,
           width: 1200,
-          xaxis: { title: "OTU IDs" },
-          yaxis: { title: "Sample Values" }                     
-      };      
+          xaxis: { title: "OTU" },
+          yaxis: { title: "Sample Values" }
+                     
+      };
       var Bubble = document.getElementById('bubble-chart');
       Plotly.plot(Bubble, bubble_data, bubble_layout);
-
-      var level =wfreq_data[0]['WFREQ']*18;  
-      var degrees = 180 - level,
-          radius = .5;
-      var radians = degrees * Math.PI / 180;
-      var x = radius * Math.cos(radians);
-      var y = radius * Math.sin(radians);
-    };  
-  function update_charts(sample, sample_value_data, otu_data) {
+      
+  };
   
-      optionChanged(sample) ;  
+  function update_charts(sample, sample_value_data, otu_data, wfreq_data) {
+  
+      optionChanged(sample) ;
 
       var new_otu_ids = sample_value_data[0]['otu_ids'];
 
@@ -100,21 +99,22 @@ function getData(sample, callback) {
           return otu_data[item]
       });
 
-      var Pie = document.getElementById('pie');
-      Plotly.restyle(Pie, "values",[new_sample_values.slice(0, 10)]);
-      Plotly.restyle(Pie, "labels", [new_otu_ids.slice(0, 10)]);
-      Plotly.restyle(Pie, "hovertext", [new_OTU_Description.slice(0, 10)]);
-      Plotly.restyle(Pie, "hoverinfo", 'hovertext');
-      Plotly.restyle(Pie, "type", 'pie');
-
       var Bubble = document.getElementById('bubble');
       Plotly.restyle(Bubble, 'x', [new_otu_ids]);
       Plotly.restyle(Bubble, 'y', [new_sample_values]);
       Plotly.restyle(Bubble, 'text', [new_OTU_Description]);
       Plotly.restyle(Bubble, 'marker.size', [new_sample_values]);
       Plotly.restyle(Bubble, 'marker.color', [new_otu_ids]);
-        }
+
+      var Pie = document.getElementById('pie');
+      Plotly.restyle(Pie, "values",[new_sample_values.slice(0, 10)]);
+      Plotly.restyle(Pie, "labels", [new_otu_ids.slice(0, 10)]);
+      Plotly.restyle(Pie, "hovertext", [new_OTU_Description.slice(0, 10)]);
+      Plotly.restyle(Pie, "hoverinfo", 'hovertext');
+      Plotly.restyle(Pie, "type", 'pie');
   
+  }
+
   function getNames_dropdown_options() {
   
       var selDataset = document.getElementById('selDataset');
@@ -138,10 +138,10 @@ function getData(sample, callback) {
       
       getData(new_sample, callback);
       
-  };  
+  };
   
   function init() {
       getNames_dropdown_options();
   }
-  
+
   init();
